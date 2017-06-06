@@ -14,33 +14,33 @@ To install it, either install from the .deb, or add the repository https://cydia
 
 <ul>
 <li>
-v0.1.7-1<br>
+<b>v0.1.7-1</b><br>
 - added support for iOS 9, 10<br>
 - fixed bugs with switching between apps in switcher, and locking and unlock screen
 </li>
-<li>v0.1.2-3<br>
+<li><b>v0.1.2-3</b><br>
 - added support for iOS 8<br>
 - removed unlocking when going to fullscreen video because there are too many video players to support
 </li>
 <li>
-v0.1.2-2<br>
+<b>v0.1.2-2</b><br>
 - added flipswitch<br>
 - added support for unlocking when going to fullscreen video
 </li>
 <li>
-v0.1.2-1<br>
+<b>v0.1.2-1</b><br>
 - added SpringBoard orientation lock option for iPad
 </li>
 <li>
-v0.1.1-2<br>
+<b>v0.1.1-2</b><br>
 - fixed compatibility issue with Background Manager
 </li>
 <li>
-v0.1.1-1<br>
+<b>v0.1.1-1</b><br>
 - added options for landscape lock and lock rotation off when apps are opened
 </li>
 <li>
-v0.1.0-1<br>
+<b>v0.1.0-1</b><br>
 - initial release
 </li>
 </ul>
