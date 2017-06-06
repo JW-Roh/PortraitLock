@@ -14,6 +14,7 @@
 
 #define isiOS7 kCFCoreFoundationVersionNumber >= 847.20
 #define isiOS8 kCFCoreFoundationVersionNumber >= 1140.10
+#define isiOS9_2 kCFCoreFoundationVersionNumber >= 1242.13
 
 @interface SpringBoard
 -(void)_relaunchSpringBoardNow;
@@ -26,9 +27,13 @@
 -(void)lock;
 -(long long)userLockOrientation;
 -(bool)isLocked;
+-(_Bool)isUserLocked;
+-(void)_updateLockStateWithChanges:(/*^block*/id)arg1 ;
+-(void)updateLockOverrideForCurrentDeviceOrientation;
 @end
 
 @interface SBApplication
+
 -(id)bundleIdentifier;
 -(bool)isRunning;
 -(void)PL_restoreSavedOrientation;
@@ -46,6 +51,10 @@ static long long savedOrientation = 0;
 
 static int springboardLockActive = 0;
 static int springboardLockSetting = 0;
+
+// Date
+static bool shouldCancel = false;
+static bool activating = false;
 
 static void loadPreferences() {
 	NSString* plist = @"/var/mobile/Library/Preferences/com.ryst.portraitlock.plist";
@@ -109,8 +118,7 @@ static void loadPreferences() {
 	springboardLockSetting = lockSetting;
 }
 
-static void receivedNotification(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
-{
+static void receivedNotification(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
 	NSString* notificationName = (NSString*)name;
 
 	if ([notificationName isEqualToString:@"com.ryst.portraitlock/settingschanged"]) {
@@ -170,6 +178,10 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 }
 %end // group HookSBApplication8
 
+// -(void)willActivate { - triggers accurately, but doesn't work with other orientations
+// -(void)setFlag:(long long)arg1 forActivationSetting:(unsigned)arg2 - triggers inaccurately (not on springboard), does work with other orientations
+// -(void)markUserLaunchInitiationTime { - triggers accurately, does work, weirdness with app switching
+// -(void)_setActivationState:(int)arg1  {
 -(void)willActivate {
 	if (enabled) {
 		NSString* identifier = [self bundleIdentifier];
@@ -187,13 +199,21 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 			if ([value intValue] == 0) {
 				[manager unlock];
 			} else {
-				[manager lock:[value intValue]];
+				activating = true;
+				// If later, then higher in priority in orientation
+				dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+					if (!shouldCancel) {
+						[manager lock:[value intValue]];
+					}
+					activating = false;
+					shouldCancel = false;
+				});
 			}
 
 			lockIdentifier = identifier;
 		}
 	}
-	%orig;
+	return %orig;
 }
 
 -(void)didDeactivateForEventsOnly:(bool)arg1 {
@@ -204,9 +224,13 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 %new
 -(void)PL_restoreSavedOrientation {
 	NSString* identifier = [self bundleIdentifier];
-	if (enabled && [lockIdentifier isEqualToString:identifier]) {
 
+	if (enabled && [lockIdentifier isEqualToString:identifier]) {
 		lockIdentifier = @"";
+
+		if (activating) {
+			shouldCancel = true;
+		}
 
 		// Restore previous lock state
 		SBOrientationLockManager* manager = [%c(SBOrientationLockManager) sharedInstance];
@@ -253,6 +277,15 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 %end // group HookSpringBoard8
 %end // hook SpringBoard
 
+%group iOS9_2_Fix
+%hook SBOrientationLockManager
+%new
+-(_Bool)isLocked {
+   return [self isUserLocked];
+}
+%end
+%end
+
 %ctor {
 	CFNotificationCenterAddObserver(
 		CFNotificationCenterGetDarwinNotifyCenter(),
@@ -276,6 +309,10 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 
 	springboardLockActive = springboardLockSetting;
 
+	if (isiOS9_2) {
+    %init(iOS9_2_Fix);
+	}
+    
 	if (isiOS8) {
 		%init(HookSBApplication8);
 		%init(HookSpringBoard8);
@@ -286,4 +323,3 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 
 	%init;
 }
-
