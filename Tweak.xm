@@ -8,16 +8,27 @@
 #define kCFCoreFoundationVersionNumber_iOS_8_0 1140.10
 #endif
 
+#ifndef kCFCoreFoundationVersionNumber_iOS_11_0
+#define kCFCoreFoundationVersionNumber_iOS_11_0 1400.00
+#endif
+
 #ifndef kCFCoreFoundationVersionNumber_iOS_8_1
 #define kCFCoreFoundationVersionNumber_iOS_8_1 1141.14
 #endif
 
 #define isiOS7 kCFCoreFoundationVersionNumber >= 847.20
 #define isiOS8 kCFCoreFoundationVersionNumber >= 1140.10
+#define isiOS11 kCFCoreFoundationVersionNumber >= 1400.00
 #define isiOS9_2 kCFCoreFoundationVersionNumber >= 1242.13
+
+#define kForeground 2
 
 @interface SpringBoard
 -(void)_relaunchSpringBoardNow;
+@end
+
+@interface FBProcessState: NSObject
+@property (assign,nonatomic) int visibility;
 @end
 
 @interface SBOrientationLockManager
@@ -182,6 +193,7 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 // -(void)setFlag:(long long)arg1 forActivationSetting:(unsigned)arg2 - triggers inaccurately (not on springboard), does work with other orientations
 // -(void)markUserLaunchInitiationTime { - triggers accurately, does work, weirdness with app switching
 // -(void)_setActivationState:(int)arg1  {
+%group HookSBApplication9
 -(void)willActivate {
 	if (enabled) {
 		NSString* identifier = [self bundleIdentifier];
@@ -220,6 +232,48 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 	[self PL_restoreSavedOrientation];
 	%orig;
 }
+%end
+
+%group HookSBApplication11
+-(void)_updateProcess:(id)arg1 withState:(FBProcessState *)state {
+	if (enabled && [state visibility] == kForeground && ![[self bundleIdentifier] isEqualToString:lockIdentifier]) {
+		NSString* identifier = [self bundleIdentifier];
+		NSNumber* value = [appsToLock valueForKey:identifier];
+
+		if (value != nil) {
+			SBOrientationLockManager* manager = [%c(SBOrientationLockManager) sharedInstance];
+
+			if ([lockIdentifier length] == 0) {
+				// remember the old lock orientation so we can restore it later
+				savedOrientation = [manager isLocked] ? [manager userLockOrientation] : 0;
+			}
+
+			// Lock or unlock orientation
+			if ([value intValue] == 0) {
+				[manager unlock];
+			} else {
+				activating = true;
+				// If later, then higher in priority in orientation
+				dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+					if (!shouldCancel) {
+						[manager lock:[value intValue]];
+					}
+					activating = false;
+					shouldCancel = false;
+				});
+			}
+
+			lockIdentifier = identifier;
+		}
+	}
+	return %orig;
+}
+
+-(void)saveSnapshotForSceneHandle:(id)arg1 context:(id)arg2 completion:(/*^block*/id)arg3 {
+	[self PL_restoreSavedOrientation];
+	%orig;
+}
+%end
 
 %new
 -(void)PL_restoreSavedOrientation {
@@ -312,11 +366,15 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 	if (isiOS9_2) {
     %init(iOS9_2_Fix);
 	}
-    
-	if (isiOS8) {
-		%init(HookSBApplication8);
+   
+  if (isiOS11) {
+  	%init(HookSBApplication11);
+  } else if (isiOS9_2) {
+  	%init(HookSBApplication9);
+  } else if (isiOS8) {
+  	%init(HookSBApplication8);
 		%init(HookSpringBoard8);
-	} else {
+  } else {
 		%init(HookSBApplication7);
 		%init(HookSpringBoard7);
 	}
