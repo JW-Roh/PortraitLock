@@ -76,19 +76,15 @@ static void log(NSString *toLog) {
 static void loadPreferences() {
 	NSString* plist = @"/var/mobile/Library/Preferences/com.ryst.portraitlock.plist";
 	NSDictionary* settings = [NSDictionary dictionaryWithContentsOfFile:plist];
-	log([NSString stringWithFormat:@"Loading preferences and successfully loaded settings."]);
 
+	// Clear it out (other clearing methods were causing weird crashes)
 	[appsToLock release];
 	appsToLock = [[NSMutableDictionary alloc] init];
-
-	log([NSString stringWithFormat:@"Cleared apps to lock"]);
 
 	NSNumber* value = [settings valueForKey:@"enabled"];
 	if (value != nil) {
 		enabled = [value boolValue];
 	}
-
-	log([NSString stringWithFormat:@"Got enabled: %@", enabled ? @"YES": @"NO"]);
 
 	if (!enabled) {
 		return;
@@ -118,12 +114,6 @@ static void loadPreferences() {
 			}
 		}
 	}
-
-	// [appsToLock setValue:@"lock3-" forKey:@"com.apple.mobilenotes"];
-
-	log([NSString stringWithFormat:@"hello!"]);
-	log([NSString stringWithFormat:@"identifier: %@", identifier]);
-	log([NSString stringWithFormat:@"appsToLock: %@", appsToLock]);
 
 	// Get springboard orientation lock setting
 	int lockSetting = 0;
@@ -253,33 +243,17 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 %end
 
 %group HookSBApplication11
--(void)_noteProcess:(id)arg1 didChangeToState:(id)arg2 {
-	log([NSString stringWithFormat:@"hackingdartmouth - note_process %@ changing to %@", arg1, arg2]);
-	return %orig;
-}
-
 -(void)_updateProcess:(id)arg1 withState:(FBProcessState *)state {
-	// log([NSString stringWithFormat:@"hackingdartmouth - updateProcess %@ with state %@", arg1, state]);
-	// log([NSString stringWithFormat:@"hackingdartmouth - enabled %@", enabled ? @"YES" : @"NO"]);
-	// log([NSString stringWithFormat:@"state visibility - %d, %d", [state visibility], kForeground]);
-	// log([NSString stringWithFormat:@"bundle and lock: %@, %@", [self bundleIdentifier], lockIdentifier]);
-	// // log([NSString stringWithFormat:@"appsToLock: %@", appsToLock]);
 	if (enabled && [state visibility] == kForeground && ![[self bundleIdentifier] isEqualToString:lockIdentifier]) {
 		NSString* identifier = [self bundleIdentifier];
-		// appsToLock = [NSMutableDictionary dictionaryWithCapacity:10];
-		// loadPreferences();
 		NSNumber* value = [appsToLock valueForKey:identifier];
-			log([NSString stringWithFormat:@"hackingdartmouth - go to work!: %@", value]);
-
 
 		if (value != nil) {
 			SBOrientationLockManager* manager = [%c(SBOrientationLockManager) sharedInstance];
-			log([NSString stringWithFormat:@"hackingdartmouth - lock!: %@", manager]);
 
 			if ([lockIdentifier length] == 0) {
 				// remember the old lock orientation so we can restore it later
 				savedOrientation = [manager isLocked] ? [manager userLockOrientation] : 0;
-				log([NSString stringWithFormat:@"hackingdartmouth - save orientation: %lld", savedOrientation]);
 			}
 
 			// Lock or unlock orientation
@@ -390,8 +364,6 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 		CFSTR("com.ryst.portraitlock/respring"),
 		NULL,
 		CFNotificationSuspensionBehaviorCoalesce);
-
-	// appsToLock = [NSMutableDictionary dictionaryWithCapacity:10];
 
 	loadPreferences();
 
