@@ -14,6 +14,10 @@ To install it, either install from the .deb, or add the repository https://cydia
 
 <ul>
 <li>
+<b>v0.1.8-1</b><br>
+- added support for iOS 11<br>
+</li>
+<li>
 <b>v0.1.7-1</b><br>
 - added support for iOS 9, 10<br>
 - fixed bugs with switching between apps in switcher, and locking and unlock screen
