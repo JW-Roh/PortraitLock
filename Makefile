@@ -7,6 +7,8 @@ FINALPACKAGE = 0
 
 include theos/makefiles/common.mk
 
+ADDITIONAL_CFLAGS = -Wno-unused-function -Wno-unused-variable
+
 TWEAK_NAME = PortraitLock
 PortraitLock_FILES = Tweak.xm
 PortraitLock_FRAMEWORKS = UIKit
