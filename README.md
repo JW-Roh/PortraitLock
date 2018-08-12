@@ -16,6 +16,7 @@ To install it, either install from the .deb, or add the repository https://cydia
 <li>
 <b>v0.1.8-1</b><br>
 - added support for iOS 11<br>
+- fixed compatibility with Activator
 </li>
 <li>
 <b>v0.1.7-1</b><br>
