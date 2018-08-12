@@ -75,7 +75,15 @@ static void log(NSString *toLog) {
 
 static void loadPreferences() {
 	NSString* plist = @"/var/mobile/Library/Preferences/com.ryst.portraitlock.plist";
-	NSDictionary* settings = [NSDictionary dictionaryWithContentsOfFile:plist];
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+	NSMutableDictionary *settings;
+
+	if ([fileManager fileExistsAtPath:plist]) {
+	  settings = [[NSMutableDictionary alloc] initWithContentsOfFile:plist];
+	} else {
+    // If the file doesn’t exist, create an empty dictionary
+    settings = [[NSMutableDictionary alloc] init];
+	}
 
 	// Clear it out (other clearing methods were causing weird crashes)
 	[appsToLock release];
@@ -91,7 +99,7 @@ static void loadPreferences() {
 	}
 
 	NSRange prefix;
-	NSString* identifier = @"Test";
+	NSString* identifier;
 
 	NSDictionary* types = [NSDictionary dictionaryWithObjectsAndKeys:
 		[NSNumber numberWithInt:1], @"lock-",
@@ -372,17 +380,23 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 	if (isiOS9_2) {
     %init(iOS9_2_Fix);
 	}
-   
+
+	// Springboard Hook
+	if (isiOS8) {
+		%init(HookSpringBoard8);
+	} else {
+		%init(HookSpringBoard7);
+	}
+  
+  // SBApplication Hook
   if (isiOS11) {
   	%init(HookSBApplication11);
   } else if (isiOS9_2) {
   	%init(HookSBApplication9);
   } else if (isiOS8) {
   	%init(HookSBApplication8);
-		%init(HookSpringBoard8);
   } else {
 		%init(HookSBApplication7);
-		%init(HookSpringBoard7);
 	}
 
 	%init;
