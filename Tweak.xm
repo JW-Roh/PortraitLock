@@ -288,6 +288,12 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 	[self PL_restoreSavedOrientation];
 	%orig;
 }
+
+// Also reset if exiting in iOS 11
+-(void)_didExitWithContext:(id)arg1 {
+	[self PL_restoreSavedOrientation];
+	%orig;
+}
 %end
 
 %new

@@ -14,9 +14,10 @@ To install it, either install from the .deb, or add the repository https://cydia
 
 <ul>
 <li>
-<b>v1.8.1</b><br>
+<b>v1.8.2</b><br>
 - fixed bug with not working after respring<br>
 - fixed weird versioning
+- fixed not working when quitting apps w/o opening and closing an app again
 </li>
 <li>
 <b>v0.1.8-1</b><br>
