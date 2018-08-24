@@ -54,7 +54,7 @@
 @end
 
 bool enabled = NO;
-NSMutableDictionary* appsToLock = [[NSMutableDictionary alloc] init];
+NSMutableDictionary* appsToLock;
 
 NSString* lockIdentifier = @"";
 long long savedOrientation = 0;
@@ -85,9 +85,8 @@ static void loadPreferences() {
     settings = [[NSMutableDictionary alloc] init];
 	}
 
-	// Clear it out (other clearing methods were causing weird crashes)
-	[appsToLock release];
-	appsToLock = [[NSMutableDictionary alloc] init];
+	// Clear it out
+	[appsToLock removeAllObjects];
 
 	NSNumber* value = [settings valueForKey:@"enabled"];
 	if (value != nil) {
@@ -372,6 +371,9 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 		CFSTR("com.ryst.portraitlock/respring"),
 		NULL,
 		CFNotificationSuspensionBehaviorCoalesce);
+
+	appsToLock = [[NSMutableDictionary alloc] init];
+	[appsToLock retain];
 
 	loadPreferences();
 
