@@ -4,7 +4,7 @@ Turn on/off rotation lock automatically when specified apps are opened.
 
 ### History
 
-Originally developed by ryst, he dropped maintenance of the tweak following iOS 8.  I've since updated it to work with iOS 9 and 10, as well as fixed a few bugs in his implementation.
+Originally developed by ryst, he dropped maintenance of the tweak following iOS 8.  I've since updated it to work with iOS 9-11, as well as fixed a few bugs in his implementation.
 
 ### Installation
 
@@ -13,6 +13,11 @@ To install it, either install from the .deb, or add the repository https://cydia
 #### Changelog
 
 <ul>
+<li>
+<b>v1.8.1</b><br>
+- fixed bug with not working after respring<br>
+- fixed weird versioning
+</li>
 <li>
 <b>v0.1.8-1</b><br>
 - added support for iOS 11<br>

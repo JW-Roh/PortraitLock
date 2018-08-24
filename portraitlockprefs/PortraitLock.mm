@@ -49,7 +49,7 @@
 }
 
 -(void)donate {
-	NSURL* url = [[NSURL alloc] initWithString:@"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=8PGP9PY65ZRX8&lc=US&item_name=ryst%20tweaks&currency_code=USD"];
+	NSURL* url = [[NSURL alloc] initWithString:@"https://www.paypal.me/AlexBeals/5"];
 	[[UIApplication sharedApplication] openURL:url];
 }
 
