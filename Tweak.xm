@@ -208,7 +208,7 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
 // -(void)setFlag:(long long)arg1 forActivationSetting:(unsigned)arg2 - triggers inaccurately (not on springboard), does work with other orientations
 // -(void)markUserLaunchInitiationTime { - triggers accurately, does work, weirdness with app switching
 // -(void)_setActivationState:(int)arg1  {
-%group HookSBApplication9
+%group HookSBApplication89
 -(void)willActivate {
 	if (enabled) {
 		NSString* identifier = [self bundleIdentifier];
@@ -399,10 +399,12 @@ static void receivedNotification(CFNotificationCenterRef center, void *observer,
   // SBApplication Hook
   if (isiOS11) {
   	%init(HookSBApplication11);
-  } else if (isiOS9_2) {
-  	%init(HookSBApplication9);
-  } else if (isiOS8) {
-  	%init(HookSBApplication8);
+  } else if (isiOS9_2 || isiOS8) {
+  	%init(HookSBApplication89);
+
+  	if (isiOS8) {
+  		%init(HookSBApplication8);
+  	}
   } else {
 		%init(HookSBApplication7);
 	}

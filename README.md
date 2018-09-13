@@ -14,6 +14,10 @@ To install it, either install from the .deb, or add the repository https://cydia
 
 <ul>
 <li>
+<b>v1.8.3</b><br>
+- turned back on iOS 7 and 8 support
+</li>
+<li>
 <b>v1.8.2</b><br>
 - fixed bug with not working after respring<br>
 - fixed weird versioning
