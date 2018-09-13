@@ -2,7 +2,7 @@ Package: com.ryst.portraitlock
 Name: Portrait Lock
 Depends: mobilesubstrate, applist, preferenceloader
 Conflicts: com.myrepospace.ryst.portraitlock, com.hackingdartmouth.rotatelock
-Version: 1.8.2
+Version: 1.8.3
 Architecture: iphoneos-arm
 Description: Turn on/off rotation lock automatically when specified apps are opened.
 Maintainer: Alex Beals <Alex.Beals.18@dartmouth.edu>
