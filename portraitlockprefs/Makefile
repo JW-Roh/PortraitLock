@@ -6,6 +6,8 @@ PortraitLock_INSTALL_PATH = /Library/PreferenceBundles
 PortraitLock_FRAMEWORKS = UIKit
 PortraitLock_PRIVATE_FRAMEWORKS = Preferences
 
+ADDITIONAL_CFLAGS = -Wno-deprecated-declarations
+
 include $(THEOS_MAKE_PATH)/bundle.mk
 
 internal-stage::
