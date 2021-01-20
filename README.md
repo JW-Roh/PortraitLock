@@ -14,6 +14,10 @@ To install it, either install from the .deb, or add the repository https://cydia
 
 <ul>
 <li>
+<b>v1.8.5</b><br>
+- Build on iOS 13.5
+</li>
+<li>
 <b>v1.8.3</b><br>
 - turned back on iOS 7 and 8 support
 </li>

@@ -1,3 +1,5 @@
+TARGET := iphone:clang:13.5:7.1
+
 include theos/makefiles/common.mk
 
 BUNDLE_NAME = PortraitLock

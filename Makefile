@@ -1,3 +1,5 @@
+TARGET := iphone:clang:13.5:7.1
+
 ARCHS = armv7 armv7s arm64 arm64e
 
 THEOS_DEVICE_IP = localhost
